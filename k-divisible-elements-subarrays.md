@@ -1,0 +1,96 @@
+问题: https://leetcode.cn/problems/k-divisible-elements-subarrays/  
+让找到 `子数组中最多 k 个可被 p 整除的元素的子数组个数`
+
+
+### 枚举所有子串
+
+思路是从930借来0/1数组的滑动窗口来计数。  
+在主函数里枚举所有子串，在次函数里枚举所有的k,最里面调用930的函数来查找valid的值。  
+把代码细节修改成930的样子之后结果对了，整理注释时候发现有很多重复计算，用hashmap没法对set<deque>记忆化，发呆中。
+  
+```cpp
+
+class Solution_slow {
+public:
+  int countDistinct(vector<int>& n, int k, int p)
+  {
+    set<vector<int>> uni;
+    for (int i = 0; i < n.size(); i++)
+    {
+      for (int len = 1; len <= n.size() - i; len++)
+      {
+        vector<int> temp;
+        copy(n.begin() + i, n.begin() + len + i, inserter(temp, end(temp)));
+        int cnt = 0;
+        for (auto i : temp)
+          if (i % p == 0)++cnt;
+        if (cnt <= k) uni.insert(temp);
+      }
+    }
+    return uni.size();
+  }
+};
+```
+
+### 超时:77 / 132 个通过测试用例
+```cpp
+
+class Solution {
+  //改自930，那个是0/1串，在这里成了A[i]%p==0
+  set<deque<int>>  numSubarraysWithSum(vector<int>& A, int S, int p) {
+    int res = 0, sum = 0, left = 0, n = A.size();
+    set<deque<int>> no_dup;
+    deque<int> temp;
+    for (int i = 0; i < n; ++i) {
+      sum += (A[i] % p == 0); //累加可以整除的数字个数。
+      temp.push_back(A[i]); //每次循环加一个
+      while (left < i && sum > S) { //移动左边界
+        sum -= (A[left++] % p == 0);
+        if (!temp.empty())
+          temp.pop_front(); //同步状态。
+      }
+      if (sum < S) continue;  //不够S就跳过，本次函数调用只求k个的
+      if (sum == S) { //先把当前塞进去,然后再收缩右边界
+        if (!temp.empty())no_dup.insert(temp); //防空
+      }
+      for (int j = left; j < i && (A[j] % p != 0); ++j) {  //判定为当前不为可以被p整除的数字，即==0的情况。
+        if (temp.empty())continue;
+        no_dup.insert(temp);  
+      }
+    }
+    //dbg(A);
+    //dbg(S);
+    //dbg(p);
+    //dbg(no_dup);
+    //ed;
+    return no_dup;
+  }
+public:
+  auto countDistinct_(vector<int>& n, int k, int p) {
+    set<deque<int>> res;
+    //题目要求`最多 k 个`,所以这里枚举每个k,并累加其结果。
+    for (int i = 0; i <= k; ++i)
+    {
+      auto ss = numSubarraysWithSum(n, i, p);
+      for (auto qq : ss)res.insert(qq);
+    }
+    return res;
+  }
+  int countDistinct(vector<int>& n, int k, int p)
+  {
+    set<deque<int>> res;  //对所有合法子串去重
+    
+    //因为之前的一个滑动窗口的解法漏掉了一些valid的子串，所以枚举所有子串来计算。
+    //现在想到这么写一定有很多重复计算，你为什么没有记忆化！
+    for (int i = 0; i < n.size(); ++i)
+    {
+      vector<int> temp;
+      copy(n.begin() + i, n.end(), inserter(temp, temp.end())); //枚举不同长度的子串
+      auto ret = countDistinct_(temp, k, p); //对当前子串，计算所有valid子串
+      for (auto cur : ret)res.insert(cur);  //把结果加入res去重
+    }
+    return res.size();
+  }
+};
+
+```
