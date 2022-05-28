@@ -31,7 +31,7 @@ public:
   bool scatter(int k, int maxRow) {
     //在每排找空余，累加，看看满足k的时候是否小于maxRwo
     vi rest_ = rest;
-    for (int i = 0; i <= maxRow; ++i)
+    for (int i = 0; i <= maxRow; ++i) //如果每行很小，行数很多，怎么快速计算和?
     {
       k -= rest[i];
       rest_[i] = 0;
