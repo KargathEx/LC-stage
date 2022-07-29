@@ -15,3 +15,5 @@
 
 ### debug技巧
 1.tree类的问题就用IDE的调试窗口来看变化，比print()好多了！
+![image](https://user-images.githubusercontent.com/40135358/181818436-d6cc2cb9-d919-4ccd-88c1-212c847c8744.png)
+这不比你一大串连个缩进都没有的print()强？
