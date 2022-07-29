@@ -1,0 +1,118 @@
+https://leetcode.cn/problems/advantage-shuffle/submissions/
+
+错了五次之后懂了，耐心耗尽，剩下的都是替换的活..
+
+[3451,9210,6762,6256,9339,306,6025,1879,3969,1818]    
+
+[3491,9014,7254,8463,754,3008,7842,404,1897,818] 		//n2,要求我的n1必须都比他大  
+
+我的答案  
+[3969,9210,9339,306,1818,1879,3451,6025,6256,6762]  
+	            1   	  2    3                    
+
+别人的  
+[3491,9014,7254,8463,754,3008,7842,404,1897,818] 		//n2,要求我的n1必须都比他大  
+[6256,6762,9210,306,1879,6025,9339,1818,3969,3451]  
+       1         2                                 
+人家的只有两个. 为什么?  
+
+我选的是最接近当前数字的下一个更大的。  
+这会导致一些问题，如果某个元素占据了下一个比它大很多的，而n2里更小的数字在后面，就会很麻烦。  
+  
+所以我应该对n2也排序，然后保存index.  
+是的，这样就能更小。  
+
+于是在第一行开始插入下述代码，并且在for循环里分出来index与value,  
+vector<pair<int, int>> n22;  
+for(int i=0;i<n2.size();++i)  
+好烦不想写了，谁来给我个sort with index.  
+
+
+```cpp
+
+#define ice
+#ifdef ice
+typedef long long ll;
+typedef vector<int> vi;
+typedef vector<vi> vii;
+typedef vector<string> vs;
+typedef vector<vs> vss;
+#define all(c) c.begin(), c.end()
+#define rall(c) c.rbegin(), c.rend()
+const int dx[4]{ 1,0,-1,0 }, dy[4]{ 0,1,0,-1 };
+#define sz(a) int((a).size())
+#define pb push_back
+template<typename T> void un(T& n) { sort(all(n)); n.erase(std::unique(n.begin(), n.end()), n.end()); }
+template<typename T>set<typename T::value_type> to_set(T t) { return set(t.begin(), t.end()); }
+template<typename T>vector<typename T::value_type> set_to(T input) { vector<typename T::value_type> output; std::copy(input.begin(), input.end(), std::back_inserter(output)); return output; }
+vector<int> get_insect(vector<int>n1, vector<int> n2) { vector<int> res; set_intersection(all(n1), all(n2), inserter(res, res.end())); return res; }
+template<typename T>auto clear(queue<T>& q) { std::queue<T>empty; std::swap(q, empty); }
+template<class T> using pqg = priority_queue<T, vector<T>, greater<T>>;
+vector<string> split(string s, string delimiter = " ") {
+  std::stringstream stringStream(s);
+  std::string line;
+  vector<string> wordVector;
+  while (std::getline(stringStream, line))
+  {
+    std::size_t prev = 0, pos;
+    while ((pos = line.find_first_of(delimiter, prev)) != std::string::npos)
+    {
+      if (pos > prev)
+        wordVector.push_back(line.substr(prev, pos - prev));
+      prev = pos + 1;
+    }
+    if (prev < line.length())
+      wordVector.push_back(line.substr(prev, std::string::npos));
+  }
+  return wordVector;
+}
+#define D(x) cout << #x << " : " << x << endl;
+#define ed cout << endl;
+//#define  sw cout<<res<<endl<<l<<" "<<r<<endl<<endl; //滑动窗口debug用。
+//#define rt  return res;
+#endif
+
+class Solution {
+public:
+  vector<int> advantageCount(vector<int>& n1, vector<int>& n2) {
+    sort(all(n1));
+
+
+    vi v(sz(n1), 1);
+    int cnt = 0;
+    vi r(n1.size(),0);
+    for (int i = 0; i < n2.size();++i) //换掉
+    {
+      auto it = upper_bound(all(n1), n2[i]);
+      auto d = distance(n1.begin(), it);
+      if (it != n1.end())
+      {
+        if (v[d]) {
+          v[d] = 0;
+          r[i]=n1[d];
+        }
+        else
+        {
+          while (d != n1.size() && !v[d])++d;
+          if (d == n1.size())break;  //在这里返回了吧，实际上应该在下面填坑.
+          else {
+            v[d] = 0;
+            r[i]=n1[d];
+          }
+        }
+      }
+    }
+//最后才填坑
+    int temp = 0;
+    for (int k = 0; k < n1.size(); ++k) // left
+    {
+      if (v[k]) {
+        while (r[temp])++temp;  //until ==0
+        r[temp] = n1[k];
+      }
+    }
+    return r;
+  }
+};
+
+```
